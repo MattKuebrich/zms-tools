@@ -6,9 +6,9 @@ You can paste in multiple instrument definitions and download the results as a .
 
 I made this so I could use FM instruments from .zms files found [on the web](http://most.bigmoney.biz/g0org/music/?cat=50&paged=4) in VOPM (and hence in a modern DAW). And conversely, to use the more user-friendly VOPM interface to design FM instruments and be able to easily move them back into Z-MUSIC MML.
 
-You use load these in the browser here:<br>
-<a href="https://mattkuebrich.com/zmstools/zms2opm.html" target=”_blank”>zms2opm</a><br>
-<a href="https://mattkuebrich.com/zmstools/opm2zms.html" target=”_blank”>opm2zms</a>
+You use load these in the browser here:    
+[zms2opm](https://mattkuebrich.com/zmstools/zms2opm.html)   
+[opm2zms](https://mattkuebrich.com/zmstools/opm2zms.html)
 
 # Z-MUSIC format
 
