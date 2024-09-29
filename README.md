@@ -4,11 +4,13 @@ These web utilities convert between .zms ([Z-MUSIC](https://web.archive.org/web/
 
 You can paste in multiple instrument definitions and download the results as a .zms or .opm file. 
 
-I made this so I could use FM instruments from .zms files found [on the web](http://most.bigmoney.biz/g0org/music/?cat=50&paged=4) in VOPM (and hence in a modern DAW). And conversely, to use the more user-friendly VOPM interface to design FM instruments and be able to easily move them back into Z-MUSIC MML.
+I made this so I could use FM instruments from .zms files found [on the web](http://most.bigmoney.biz/g0org/music/?cat=50&paged=4) in VOPM (and hence in a modern DAW). And conversely, to use the more user-friendly VOPM interface to design FM instruments and be able to easily move them back into Z-MUSIC MML. 
 
 You use load these in the browser here:    
 [zms2opm](https://mattkuebrich.com/zmstools/zms2opm.html)   
 [opm2zms](https://mattkuebrich.com/zmstools/opm2zms.html)
+
+Note: These are HTML/Javascript utilities, as I wanted them to be simple to use. The downside is they aren't viable for batch processing tons of individual files. 
 
 # Z-MUSIC format
 
