@@ -81,11 +81,12 @@ C2: 31  15  10   8  15   0   0   3   0   0   0
 * [opm2mml by exodusmodules](https://nfggames.com/forum2/index.php?topic=5992.0)
 * [mdxtools by vampirefrog](https://github.com/vampirefrog/mdxtools)
 * [hootvopm by whut](https://git.lain.church/whut/hootvopm)
+* [vgm2opm by Aidan Lawrence](https://github.com/AidanHockey5/MegaMIDI/tree/master/tools/vgm2opm)
 
 # References
 * [Z-MUSIC 2 documentation (Japanese)](https://nfggames.com/X68000/Documentation/Zmusic/zmusic2.txt)
 * [OPM File Format wiki page @ vgmrips.net](https://vgmrips.net/wiki/OPM_File_Format)
-* [New Voices and The OPM File Format](https://www.aidanlawrence.com/mega-midi-a-playable-version-of-my-hardware-sega-genesis-synth/#opmformat)
+* [New Voices and The OPM File Format by Aidan Lawrence](https://www.aidanlawrence.com/mega-midi-a-playable-version-of-my-hardware-sega-genesis-synth/#opmformat)
 
 
 
