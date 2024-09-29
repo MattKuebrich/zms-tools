@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zms2opm</title>
+</head>
+
+<body>
+    <h1>zms2opm</h1>
+
+    This converts Z-Music 2 instruments to .opm sound banks (like those used in <a href="http://picopicose.com/software.html">VOPM / VOPMex</a>).
+    <p>
+        <textarea id="zmsInput" rows="10" cols="60" placeholder="Paste zms instrument definitions here..."></textarea>
+        <br><br>
+        <button onclick="convert()">Convert to OPM</button>
+        <br><br>
+        <textarea id="opmOutput" rows="10" cols="60" placeholder="OPM output will appear here..."></textarea>
+        <br><br>
+        <button onclick="downloadOPM()">Download OPM File</button>
+
+        <script>
+function convert() {
+    const zmsData = document.getElementById('zmsInput').value;
+    const instruments = zmsData.split('\n\n').filter(Boolean);
+
+    let opmOutput = '//MiOPMdrv sound bank Paramer Ver2002.04.22\n';
+    opmOutput += '//LFO: LFRQ AMD PMD WF NFRQ\n';
+    opmOutput += '//@:[Num] [Name]\n';
+    opmOutput += '//CH: PAN\tFL CON AMS PMS SLOT NE\n';
+    opmOutput += '//[OPname]: AR D1R D2R\tRR D1L\tTL\tKS MUL DT1 DT2 AMS-EN\n\n';
+
+    for (let i = 0; i < 128; i++) {
+        if (i < instruments.length) {
+            const instrument = instruments[i];
+            const lines = instrument.trim().split('\n').filter(line => !line.trim().startsWith('/'));
+            let instrumentName, operators, globalParams;
+
+            if (instrument.startsWith('(v')) {
+                [, instrumentName] = lines[0].slice(2).split('/');
+                globalParams = lines[1].trim().split(',').map(param => param.trim());
+                operators = lines.slice(2).map(line => line.trim().split(','));
+            } else {
+                [, instrumentName] = lines[0].slice(2).split('/');
+                operators = lines.slice(1, 5).map(line => line.trim().split(','));
+                globalParams = lines[5].trim().split(',').map(param => param.replace(')', ''));
+            }
+
+            instrumentName = instrumentName.trim();
+
+            opmOutput += `@:${i} ${instrumentName}\n`;
+            opmOutput += `LFO: ${globalParams[4] || '0'}  ${globalParams[6] || '0'}  ${globalParams[5] || '0'}  ${globalParams[2] || '0'}  0\n`;
+            opmOutput += `CH: ${globalParams[9] || '0'}  ${(parseInt(globalParams[0]) >> 3) || '0'}  ${(parseInt(globalParams[0]) & 7) || '0'}  ${globalParams[8] || '0'}  ${globalParams[7] || '0'}  ${Math.floor((parseFloat(globalParams[1]) || 0) * 8)} 0\n`;
+
+            ['M1:', 'C1:', 'M2:', 'C2:'].forEach((prefix, j) => {
+                const op = operators[j];
+                opmOutput += `${prefix} ${op[0] || '0'}  ${op[1] || '0'}  ${op[2] || '0'}  ${op[3] || '0'}  ${op[4] || '0'}  ${op[5] || '0'}  ${op[6] || '0'}  ${op[7] || '0'}  ${op[8] || '0'}  ${op[9] || '0'}  ${op[10] === '1' ? 128 : 0}\n`;
+            });
+        } else {
+            // Add default instrument for missing entries
+            opmOutput += `@:${i} No Name\n`;
+            opmOutput += `LFO: 0  0  0  0  0\n`;
+            opmOutput += `CH: 64  0  0  0  0  64  0\n`;
+            opmOutput += `M1: 31  0  0  4  0  0  0  1  0  0  0\n`;
+            opmOutput += `C1: 31  0  0  4  0  0  0  1  0  0  0\n`;
+            opmOutput += `M2: 31  0  0  4  0  0  0  1  0  0  0\n`;
+            opmOutput += `C2: 31  0  0  4  0  0  0  1  0  0  0\n`;
+        }
+
+        opmOutput += '\n';
+    }
+
+    document.getElementById('opmOutput').value = opmOutput.trim();
+}
+
+function downloadOPM() {
+    const opmContent = document.getElementById('opmOutput').value;
+    if (!opmContent) {
+        alert('Please convert ZMS to OPM first.');
+        return;
+    }
+
+    // Extract the name of the first instrument
+    const firstInstrumentMatch = opmContent.match(/@:0\s+(.*)/);
+    let fileName = 'converted_instruments.opm';
+    if (firstInstrumentMatch && firstInstrumentMatch[1]) {
+        // Use the first instrument's name, replacing spaces with underscores
+        fileName = firstInstrumentMatch[1].trim().replace(/\s+/g, '_') + '.opm';
+    }
+
+    const blob = new Blob([opmContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+        </script>
+</body>
+
+</html>

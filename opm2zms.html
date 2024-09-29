@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>opm2zms</title>
+</head>
+
+<body>
+    <h1>opm2zms</h1>
+
+    This converts .opm sound banks (like those used in <a href="http://picopicose.com/software.html">VOPM / VOPMex</a>) to a Z-Music 2 instruments.
+    <p>
+    <textarea id="opmInput" rows="10" cols="60" placeholder="Paste opm data here..."></textarea>
+    <br><br>
+    <button onclick="convert()">Convert to ZMS</button>
+    <br><br>
+    <textarea id="zmsOutput" rows="10" cols="60" placeholder="zms output will appear here..."></textarea>
+    <br><br>
+    <button onclick="downloadZMS()">Download ZMS File</button>
+
+    <script>
+function convert() {
+    const opmData = document.getElementById('opmInput').value;
+    const lines = opmData.split('\n').map(line => line.trim()).filter(Boolean);
+
+    let zmsOutput = '(I)\n(aFM1,1) (M1 ,500)\n\n';  // Add the header
+    let instrumentName = '';
+    let lfo, ch, m1, c1, m2, c2;
+    let counter = 1;  // Start numbering instruments from 1
+
+    lines.forEach((line) => {
+        if (line.startsWith('//')) return;
+
+        if (line.startsWith('@:')) {
+            if (counter > 1) {
+                zmsOutput += generatezmsOutput(counter - 1, instrumentName, lfo, ch, m1, c1, m2, c2);
+            }
+            const parts = line.split(' ');
+            instrumentName = parts.slice(1).join(' ');
+            lfo = ch = m1 = c1 = m2 = c2 = null;
+            counter++;  // Increment counter for the next instrument
+        } else if (line.startsWith('LFO:')) {
+            lfo = line.match(/\d+/g);
+        } else if (line.startsWith('CH:')) {
+            ch = line.match(/\d+/g);
+        } else if (line.startsWith('M1:')) {
+            m1 = line.match(/\d+/g);
+        } else if (line.startsWith('C1:')) {
+            c1 = line.match(/\d+/g);
+        } else if (line.startsWith('M2:')) {
+            m2 = line.match(/\d+/g);
+        } else if (line.startsWith('C2:')) {
+            c2 = line.match(/\d+/g);
+        }
+    });
+
+    // Add the last instrument
+    if (counter > 1) {
+        zmsOutput += generatezmsOutput(counter - 1, instrumentName, lfo, ch, m1, c1, m2, c2);
+    }
+
+    zmsOutput += '\n(t1)  @1 cccc\n(p)';  // Add the footer
+
+    document.getElementById('zmsOutput').value = zmsOutput.trim();
+}
+
+function generatezmsOutput(instrumentNumber, instrumentName, lfo, ch, m1, c1, m2, c2) {
+    return `(@${instrumentNumber}\t/ ${instrumentName}
+/\t AR  DR  SR  RR  SL  OL  KS  ML DT1 DT2 AME
+\t ${m1[1]}, ${m1[2]}, ${m1[3]}, ${m1[4]}, ${m1[5]}, ${m1[6]}, ${m1[7]}, ${m1[8]}, ${m1[9]}, ${m1[10]}, ${m1[11] === '128' ? 1 : 0}
+\t ${c1[1]}, ${c1[2]}, ${c1[3]}, ${c1[4]}, ${c1[5]}, ${c1[6]}, ${c1[7]}, ${c1[8]}, ${c1[9]}, ${c1[10]}, ${c1[11] === '128' ? 1 : 0}
+\t ${m2[1]}, ${m2[2]}, ${m2[3]}, ${m2[4]}, ${m2[5]}, ${m2[6]}, ${m2[7]}, ${m2[8]}, ${m2[9]}, ${m2[10]}, ${m2[11] === '128' ? 1 : 0}
+\t ${c2[1]}, ${c2[2]}, ${c2[3]}, ${c2[4]}, ${c2[5]}, ${c2[6]}, ${c2[7]}, ${c2[8]}, ${c2[9]}, ${c2[10]}, ${c2[11] === '128' ? 1 : 0}
+/\t AL  FB  OM PAN  WF SYC SPD PMD AMD PMS AMS
+\t  ${ch[2]}, ${ch[1]}, ${Math.floor(ch[5] / 8)}, 3, ${lfo[3]}, 0, ${lfo[0]}, ${lfo[2]}, ${lfo[1]}, ${ch[4]}, ${ch[3]})
+
+`;
+}
+
+function downloadZMS() {
+    const zmsContent = document.getElementById('zmsOutput').value;
+    if (!zmsContent) {
+        alert('Please convert OPM to ZMS first.');
+        return;
+    }
+
+    // Extract the name of the first instrument
+    const firstInstrumentMatch = zmsContent.match(/@\d+\s+\/\s+(.*)/);
+
+    let fileName = 'converted_instruments.zms';
+    if (firstInstrumentMatch && firstInstrumentMatch[1]) {
+        // Use the first instrument's name, replacing spaces with underscores
+        fileName = firstInstrumentMatch[1].trim().replace(/\s+/g, '_') + '.zms';
+    }
+
+    const crlfContent = zmsContent.replace(/\n/g, '\r\n');
+    const blob = new Blob([crlfContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+    </script>
+</body>
+</html>
