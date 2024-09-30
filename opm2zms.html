@@ -21,14 +21,16 @@
     <button onclick="downloadZMS()">Download ZMS File</button>
 
     <script>
+        
 function convert() {
     const opmData = document.getElementById('opmInput').value;
     const lines = opmData.split('\n').map(line => line.trim()).filter(Boolean);
 
-    let zmsOutput = '(I)\n(aFM1,1) (M1 ,500)\n\n';  // Add the header
+    let zmsOutput = '(I)\n';
     let instrumentName = '';
     let lfo, ch, m1, c1, m2, c2;
     let counter = 1;  // Start numbering instruments from 1
+    let isNoise = false;
 
     lines.forEach((line) => {
         if (line.startsWith('//')) return;
@@ -45,6 +47,9 @@ function convert() {
             lfo = line.match(/\d+/g);
         } else if (line.startsWith('CH:')) {
             ch = line.match(/\d+/g);
+            if (ch && ch[6] == 128) {
+                isNoise = true;
+            }
         } else if (line.startsWith('M1:')) {
             m1 = line.match(/\d+/g);
         } else if (line.startsWith('C1:')) {
@@ -61,7 +66,14 @@ function convert() {
         zmsOutput += generatezmsOutput(counter - 1, instrumentName, lfo, ch, m1, c1, m2, c2);
     }
 
-    zmsOutput += '\n(t1)  @1 cccc\n(p)';  // Add the footer
+    // Add the final part based on whether it's noise or not
+    if (isNoise) {
+        zmsOutput = '(aFM8,8) (M8 ,500)\n\n' + zmsOutput;
+        zmsOutput += `\n(t8) @1 @o${lfo ? lfo[4] : ''}  cccc\n(p)`;
+    } else {
+        zmsOutput = '(aFM1,1) (M1 ,500)\n\n' + zmsOutput;
+        zmsOutput += `\n(t1) @1 cccc\n(p)`;
+    }
 
     document.getElementById('zmsOutput').value = zmsOutput.trim();
 }
