@@ -84,6 +84,7 @@ C2: 31  15  10   8  15   0   0   3   0   0   0
 * [mdxtools by vampirefrog](https://github.com/vampirefrog/mdxtools)
 * [hootvopm by whut](https://git.lain.church/whut/hootvopm)
 * [vgm2opm by Aidan Lawrence](https://github.com/AidanHockey5/MegaMIDI/tree/master/tools/vgm2opm)
+* [MDXPG by SAM](https://web.archive.org/web/20180718095132/http://www.geocities.jp/sam_kb/VOPM/MDXPG/index.html)
 
 # References
 * [Z-MUSIC 2 documentation (Japanese)](https://nfggames.com/X68000/Documentation/Zmusic/zmusic2.txt)
