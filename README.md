@@ -47,6 +47,8 @@ They can also be like this, where AF is a combined value for both algorithm and 
 
 * Rather than just output the instrument definitions, I've formatted the .zms file so it can be played without further modification. It just plays a few notes using the first defined instrument.
 
+* Z-MUSIC instrument definitions don't contain a noise enable or noise frequency setting (which is present in VOPM). It is set with the ``@o`` macro and only works when using Channel 8. When converting from .opm to .zms, I've added rudimentary support for noise by adding the noise macro when it's enabled in the .opm instrument, but if you convert multiple instruments (with multiple noise settings), it won't really work. 
+
 * If you do further editing to .zms files, it's important that they are saved using Windows-style CRLF line endings. I had troubles on Mac with files mysteriously not working because of this. In Visual Studio Code, you can switch between them by clicking the LF or CRLF text located on the lower right of the window. The utility should save them correctly though.
 
 * The easiest way I've found to play .zms files without too much fuss is use [ZMDRIVE](https://t.co/ovnG4JLugE) for Windows (which also works in Wine).
@@ -76,8 +78,6 @@ C2: 31  15  10   8  15   0   0   3   0   0   0
 ### Other Notes:
 
 * The converter saves an entire OPM bank of 128 instruments every time, even if only a few instruments are converted. The others will just be empty. This works best when importing them into VOPM.
-
-* The "noise" switch in VOMP isn't implemented yet, as it is set with a seperate Z-MUSIC macro, not in the instrument definition.
 
 # Similar projects
 * [opm2mml by exodusmodules](https://nfggames.com/forum2/index.php?topic=5992.0)
