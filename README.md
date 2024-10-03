@@ -14,7 +14,7 @@ Note: These are HTML/Javascript utilities, as I wanted them to be simple to use.
 
 # Z-MUSIC format
 
-[Z-MUSIC](https://web.archive.org/web/20240126144946/http://www.z-z-z.jp/zmusic/) is a music driver for the Sharp X68000 computer. Z-MUSIC songs are written in Music Macro Language (MML) and saved as .zms source files. The FM instruments can be formatted in two ways, both which are supported in the zms2opm utility. 
+[Z-MUSIC](https://web.archive.org/web/20240126144946/http://www.z-z-z.jp/zmusic/) is a music driver for the Sharp X68000 computer. Z-MUSIC songs are written in Music Macro Language (MML) and saved as .zms source files. The FM instruments can be formatted in two ways, both which are supported in the zms2opm utility.
 
 AL/FB separated format looks like this, where the FM algorithm and feedback parameters are separate values.
 
@@ -40,6 +40,11 @@ They can also be like this, where AF is a combined value for both algorithm and 
 	 31, 10, 10,  8,  8,  0,  0,  2,  0,  0,  0
 	 31, 10, 10,  8,  8,  0,  1,  0,  0,  2,  0
 	 31, 15, 10,  8, 15,  0,  0,  3,  0,  0,  0)
+```
+
+You can use commas, spaces or returns to seperate  values, so this is also valid:
+```
+(v1 0 44 15 3 0 255 127 127 7 7 3 0 31 1 31 4 12 0 0 2 0 2 0 31 10 10 8 8 0 0 2 0 0 0 31 10 10 8 8 0 1 0 0 2 0 31 15 10 8 15 0 0 3 0 0 0)
 ```
 
 ### Other Notes: 
