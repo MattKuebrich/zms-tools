@@ -1,4 +1,4 @@
-# zmstools
+# zms-tools
 
 These web utilities convert between .zms ([Z-MUSIC](https://web.archive.org/web/20240126144946/http://www.z-z-z.jp/zmusic/)) FM instrument definitions and [VOPM](http://picopicose.com/software.html) .opm sound banks and vise versa. 
 
@@ -7,14 +7,14 @@ You can paste in multiple instrument definitions and download the results as a .
 I made this so I could use FM instruments from .zms files found [on the web](http://most.bigmoney.biz/g0org/music/?cat=50&paged=4) in VOPM (and hence in a modern DAW). And conversely, to use the more user-friendly VOPM interface to design FM instruments and be able to easily move them back into Z-MUSIC MML. 
 
 You use load these in the browser here:    
-zms2opm (need updating)<br>
+[zms2opm](https://mattkuebrich.com/zmstools/zms2opm.html)<br>
 [opm2zms](https://mattkuebrich.com/zmstools/opm2zms.html)
 
 Note: These are HTML/Javascript utilities, as I wanted them to be simple to use. The downside is they aren't viable for batch processing tons of individual files. 
 
 # Z-MUSIC format
 
-[Z-MUSIC](https://web.archive.org/web/20240126144946/http://www.z-z-z.jp/zmusic/) is a music driver for the Sharp X68000 computer. Z-MUSIC songs are written in Music Macro Language (MML) and saved as .zms source files. The FM instruments can be formatted in two ways, both which are supported in the zms2opm utility.
+[Z-MUSIC](https://web.archive.org/web/20240126144946/http://www.z-z-z.jp/zmusic/) is a music driver for the Sharp X68000 computer. Z-MUSIC songs are written in Music Macro Language (MML) and saved as .zms source files. The FM instruments can be formatted in quite a few ways, all of which I've tried to support in the zms2opm utility.
 
 AL/FB separated format looks like this, where the FM algorithm and feedback parameters are separate values.
 
@@ -47,6 +47,18 @@ You can use commas, spaces or returns to seperate  values, so this is also valid
 (v1 0 44 15 3 0 255 127 127 7 7 3 0 31 1 31 4 12 0 0 2 0 2 0 31 10 10 8 8 0 0 2 0 0 0 31 10 10 8 8 0 1 0 0 2 0 31 15 10 8 15 0 0 3 0 0 0)
 ```
 
+And this format is rarely used, but also supported:
+```
+.FM_VSET 01={
+/	 AR  DR  SR  RR  SL  OL  KS  ML DT1 DT2 AME
+	 31,  1, 31,  4, 12,  0,  0,  2,  0,  2,  0
+	 31, 10, 10,  8,  8,  0,  0,  2,  0,  0,  0
+	 31, 10, 10,  8,  8,  0,  1,  0,  0,  2,  0
+	 31, 15, 10,  8, 15,  0,  0,  3,  0,  0,  0
+/	 AL  FB  OM PAN  WF SYC SPD PMD AMD PMS AMS
+	  4,  5, 15,  3,  3,  0,255,127,127,  7,  7}
+```
+
 ### Other Notes: 
 * Make sure to paste in only the instrument definitions, not any other bits of MML.
 
@@ -56,7 +68,7 @@ You can use commas, spaces or returns to seperate  values, so this is also valid
 
 * If you do further editing to .zms files, it's important that they are saved using Windows-style CRLF line endings. I had troubles on Mac with files mysteriously not working because of this. In Visual Studio Code, you can switch between them by clicking the LF or CRLF text located on the lower right of the window. The utility should save them correctly though.
 
-* The easiest way I've found to play .zms files without too much fuss is use [ZMDRIVE](https://t.co/ovnG4JLugE) for Windows (which also works in Wine).
+* The easiest way I've found to play .zms files without too much fuss is use [ZMDRIVE](https://t.co/ovnG4JLugE) for Windows (which also works in Wine). You'll need to add <a href="https://github.com/rururutan/X68Sound">X68Sound.dll</a> (see the Releases on that page) to the same folder as ZMDRIVE for this to work.
 
 # VOPM format
 
