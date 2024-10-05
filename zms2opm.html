@@ -10,7 +10,9 @@
 <body>
     <h1>zms2opm</h1>
 
-    This converts Z-Music 2 instruments to .opm sound banks (like those used in <a href="http://picopicose.com/software.html">VOPM / VOPMex</a>).
+    This converts Z-Music 2 instruments to <a
+    href="http://picopicose.com/software.html">VOPM</a> .opm sound banks. <br>
+        For more information, refer to <a href="https://github.com/MattKuebrich/zmstools">zmstools on GitHub</a>.
     <p>
         <textarea id="zmsInput" rows="10" cols="60" placeholder="Paste zms instrument definitions here..."></textarea>
         <br><br>
@@ -18,87 +20,105 @@
         <br><br>
         <textarea id="opmOutput" rows="10" cols="60" placeholder="OPM output will appear here..."></textarea>
         <br><br>
+        <!--
+        <textarea id="testOutput" rows="10" cols="60" placeholder="Test Output..."></textarea>
+        <br><br>
+        -->
         <button onclick="downloadOPM()">Download OPM File</button>
 
         <script>
-function convert() {
-    const zmsData = document.getElementById('zmsInput').value;
-    const instruments = zmsData.split('\n\n').filter(Boolean);
+            function convert() {
+                const zmsData = document.getElementById('zmsInput').value;
+                let instrumentName = "";
+                let opmOutput = '//MiOPMdrv sound bank Paramer Ver2002.04.22\n';
+                opmOutput += '//LFO: LFRQ AMD PMD WF NFRQ\n';
+                opmOutput += '//@:[Num] [Name]\n';
+                opmOutput += '//CH: PAN\tFL CON AMS PMS SLOT NE\n';
+                opmOutput += '//[OPname]: AR D1R D2R\tRR D1L\tTL\tKS MUL DT1 DT2 AMS-EN\n\n';
 
-    let opmOutput = '//MiOPMdrv sound bank Paramer Ver2002.04.22\n';
-    opmOutput += '//LFO: LFRQ AMD PMD WF NFRQ\n';
-    opmOutput += '//@:[Num] [Name]\n';
-    opmOutput += '//CH: PAN\tFL CON AMS PMS SLOT NE\n';
-    opmOutput += '//[OPname]: AR D1R D2R\tRR D1L\tTL\tKS MUL DT1 DT2 AMS-EN\n\n';
+                const instruments = zmsData.split(/\n\s*\n/); // Split by empty lines
+                let instrumentCount = 0;
 
-    for (let i = 0; i < 128; i++) {
-        if (i < instruments.length) {
-            const instrument = instruments[i];
-            const lines = instrument.trim().split('\n').filter(line => !line.trim().startsWith('/'));
-            let instrumentName, operators, globalParams;
+                instruments.forEach(instrumentData => {
+                    // Normalize space after "@" or "v"
+                    let normalizedData = instrumentData.replace(/@\s*(\d+)/g, '@$1').replace(/v\s*(\d+)/g, 'v$1');
+                    const data = normalizedData
 
-            if (instrument.startsWith('(v')) {
-                [, instrumentName] = lines[0].slice(2).split('/');
-                globalParams = lines[1].trim().split(',').map(param => param.trim());
-                operators = lines.slice(2).map(line => line.trim().split(','));
-            } else {
-                [, instrumentName] = lines[0].slice(2).split('/');
-                operators = lines.slice(1, 5).map(line => line.trim().split(','));
-                globalParams = lines[5].trim().split(',').map(param => param.replace(')', ''));
+                        .split('\n')
+                        .map(line => {
+                            if (line.match(/(@|\(v|\(.FM_VSET)/)) {
+                                const commentMatch = line.match(/\/\s*(.*)/);
+                                if (commentMatch) {
+                                    instrumentName = commentMatch[1].trim();
+                                }
+                            }
+                            return line.split('/')[0].trim();
+                        })
+
+
+                        .filter(line => line.length > 0)
+                        .join(' ')
+                        .trim()
+                        .split(/[\s,]+/)
+                        .map(item => item.replace(/[\)\{\}]/g, ''))
+                        .filter(item => item.trim().length > 0);
+
+                    if (data[0].startsWith('.FM_VSET') || data[0].match(/\((.)/)[1] == '@' || data[0].match(/\((.)/)[1] == 'v') {
+                        opmOutput += `@:${instrumentCount} ${instrumentName}\n`;
+                        instrumentCount++;
+
+                        if (data[0].startsWith('.FM_VSET')) {
+                            opmOutput += `LFO: ${data[52] || '0'}  ${data[54] || '0'}  ${data[53] || '0'}  ${data[50] || '0'}  0\n`;
+                            opmOutput += `CH: ${data[49] || '0'}  ${(parseInt(data[47])) || '0'}  ${(parseInt(data[46])) || '0'}  ${data[56] || '0'}  ${data[55] || '0'}  ${Math.floor((parseFloat(data[48]) || 0) * 8)} 0\n`;
+                            opmOutput += `M1: ${data[2] || '0'}  ${data[3] || '0'}  ${data[4] || '0'}  ${data[5] || '0'}  ${data[6] || '0'}  ${data[7] || '0'}  ${data[8] || '0'}  ${data[9] || '0'}  ${data[10] || '0'}  ${data[11] || '0'}  ${data[12] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C1: ${data[13] || '0'}  ${data[14] || '0'}  ${data[15] || '0'}  ${data[16] || '0'}  ${data[17] || '0'}  ${data[18] || '0'}  ${data[19] || '0'}  ${data[20] || '0'}  ${data[21] || '0'}  ${data[22] || '0'}  ${data[23] === '1' ? 128 : 0}\n`;
+                            opmOutput += `M2: ${data[24] || '0'}  ${data[25] || '0'}  ${data[26] || '0'}  ${data[27] || '0'}  ${data[28] || '0'}  ${data[29] || '0'}  ${data[30] || '0'}  ${data[31] || '0'}  ${data[32] || '0'}  ${data[33] || '0'}  ${data[34] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C2: ${data[35] || '0'}  ${data[36] || '0'}  ${data[37] || '0'}  ${data[38] || '0'}  ${data[39] || '0'}  ${data[40] || '0'}  ${data[41] || '0'}  ${data[42] || '0'}  ${data[43] || '0'}  ${data[44] || '0'}  ${data[45] === '1' ? 128 : 0}\n`;
+                        } else if (data[0].match(/\((.)/)[1] == '@') {
+                            opmOutput += `LFO: ${data[51] || '0'}  ${data[53] || '0'}  ${data[52] || '0'}  ${data[49] || '0'}  0\n`;
+                            opmOutput += `CH: ${data[48] || '0'}  ${(parseInt(data[46])) || '0'}  ${(parseInt(data[45])) || '0'}  ${data[55] || '0'}  ${data[54] || '0'}  ${Math.floor((parseFloat(data[47]) || 0) * 8)} 0\n`;
+                            opmOutput += `M1: ${data[1] || '0'}  ${data[2] || '0'}  ${data[3] || '0'}  ${data[4] || '0'}  ${data[5] || '0'}  ${data[6] || '0'}  ${data[7] || '0'}  ${data[8] || '0'}  ${data[9] || '0'}  ${data[10] || '0'}  ${data[11] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C1: ${data[12] || '0'}  ${data[13] || '0'}  ${data[14] || '0'}  ${data[15] || '0'}  ${data[16] || '0'}  ${data[17] || '0'}  ${data[18] || '0'}  ${data[19] || '0'}  ${data[20] || '0'}  ${data[21] || '0'}  ${data[22] === '1' ? 128 : 0}\n`;
+                            opmOutput += `M2: ${data[23] || '0'}  ${data[24] || '0'}  ${data[25] || '0'}  ${data[26] || '0'}  ${data[27] || '0'}  ${data[28] || '0'}  ${data[29] || '0'}  ${data[30] || '0'}  ${data[31] || '0'}  ${data[32] || '0'}  ${data[33] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C2: ${data[34] || '0'}  ${data[35] || '0'}  ${data[36] || '0'}  ${data[37] || '0'}  ${data[38] || '0'}  ${data[39] || '0'}  ${data[40] || '0'}  ${data[41] || '0'}  ${data[42] || '0'}  ${data[43] || '0'}  ${data[44] === '1' ? 128 : 0}\n`;
+                        } else if (data[0].match(/\((.)/)[1] == 'v') {
+                            opmOutput += `LFO: ${data[6] || '0'}  ${data[8] || '0'}  ${data[7] || '0'}  ${data[4] || '0'}  0\n`;
+                            opmOutput += `CH: ${data[11] || '0'}  ${(parseInt(data[2]) >> 3) || '0'}  ${(parseInt(data[2]) & 7) || '0'}  ${data[10] || '0'}  ${data[9] || '0'}  ${Math.floor((parseFloat(data[3]) || 0) * 8)} 0\n`;
+                            opmOutput += `M1: ${data[13] || '0'}  ${data[14] || '0'}  ${data[15] || '0'}  ${data[16] || '0'}  ${data[17] || '0'}  ${data[18] || '0'}  ${data[19] || '0'}  ${data[20] || '0'}  ${data[21] || '0'}  ${data[22] || '0'}  ${data[23] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C1: ${data[24] || '0'}  ${data[25] || '0'}  ${data[26] || '0'}  ${data[27] || '0'}  ${data[28] || '0'}  ${data[29] || '0'}  ${data[30] || '0'}  ${data[31] || '0'}  ${data[32] || '0'}  ${data[33] || '0'}  ${data[34] === '1' ? 128 : 0}\n`;
+                            opmOutput += `M2: ${data[35] || '0'}  ${data[36] || '0'}  ${data[37] || '0'}  ${data[38] || '0'}  ${data[39] || '0'}  ${data[40] || '0'}  ${data[41] || '0'}  ${data[42] || '0'}  ${data[43] || '0'}  ${data[44] || '0'}  ${data[45] === '1' ? 128 : 0}\n`;
+                            opmOutput += `C2: ${data[46] || '0'}  ${data[47] || '0'}  ${data[48] || '0'}  ${data[49] || '0'}  ${data[50] || '0'}  ${data[51] || '0'}  ${data[52] || '0'}  ${data[53] || '0'}  ${data[54] || '0'}  ${data[55] || '0'}  ${data[56] === '1' ? 128 : 0}\n`;
+                        }
+
+                        opmOutput += '\n';
+
+                    }
+                });
+
+                for (let i = instrumentCount; i < 128; i++) {
+                            opmOutput += `@:${i} init\n`;
+                            opmOutput += `LFO:  0   0   0   0   0\n`;
+                            opmOutput += `CH: 64   0   0   0   0  64   0\n`;
+                            opmOutput += `M1: 31   0   0   4   0   0   0   1   0   0   0\n`;
+                            opmOutput += `C1: 31   0   0   4   0   0   0   1   0   0   0\n`;
+                            opmOutput += `M2: 31   0   0   4   0   0   0   1   0   0   0\n`;
+                            opmOutput += `C2: 31   0   0   4   0   0   0   1   0   0   0\n\n`;
+                        }
+
+                document.getElementById('opmOutput').value = opmOutput;
+                //document.getElementById('testOutput').value = instrumentCount; 
             }
 
-            instrumentName = instrumentName.trim();
-
-            opmOutput += `@:${i} ${instrumentName}\n`;
-            opmOutput += `LFO: ${globalParams[4] || '0'}  ${globalParams[6] || '0'}  ${globalParams[5] || '0'}  ${globalParams[2] || '0'}  0\n`;
-            opmOutput += `CH: ${globalParams[9] || '0'}  ${(parseInt(globalParams[0]) >> 3) || '0'}  ${(parseInt(globalParams[0]) & 7) || '0'}  ${globalParams[8] || '0'}  ${globalParams[7] || '0'}  ${Math.floor((parseFloat(globalParams[1]) || 0) * 8)} 0\n`;
-
-            ['M1:', 'C1:', 'M2:', 'C2:'].forEach((prefix, j) => {
-                const op = operators[j];
-                opmOutput += `${prefix} ${op[0] || '0'}  ${op[1] || '0'}  ${op[2] || '0'}  ${op[3] || '0'}  ${op[4] || '0'}  ${op[5] || '0'}  ${op[6] || '0'}  ${op[7] || '0'}  ${op[8] || '0'}  ${op[9] || '0'}  ${op[10] === '1' ? 128 : 0}\n`;
-            });
-        } else {
-            // Add default instrument for missing entries
-            opmOutput += `@:${i} No Name\n`;
-            opmOutput += `LFO: 0  0  0  0  0\n`;
-            opmOutput += `CH: 64  0  0  0  0  64  0\n`;
-            opmOutput += `M1: 31  0  0  4  0  0  0  1  0  0  0\n`;
-            opmOutput += `C1: 31  0  0  4  0  0  0  1  0  0  0\n`;
-            opmOutput += `M2: 31  0  0  4  0  0  0  1  0  0  0\n`;
-            opmOutput += `C2: 31  0  0  4  0  0  0  1  0  0  0\n`;
-        }
-
-        opmOutput += '\n';
-    }
-
-    document.getElementById('opmOutput').value = opmOutput.trim();
-}
-
-function downloadOPM() {
-    const opmContent = document.getElementById('opmOutput').value;
-    if (!opmContent) {
-        alert('Please convert ZMS to OPM first.');
-        return;
-    }
-
-    // Extract the name of the first instrument
-    const firstInstrumentMatch = opmContent.match(/@:0\s+(.*)/);
-    let fileName = 'converted_instruments.opm';
-    if (firstInstrumentMatch && firstInstrumentMatch[1]) {
-        // Use the first instrument's name, replacing spaces with underscores
-        fileName = firstInstrumentMatch[1].trim().replace(/\s+/g, '_') + '.opm';
-    }
-
-    const blob = new Blob([opmContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
+            function downloadOPM() {
+                const opmData = document.getElementById('opmOutput').value;
+                const blob = new Blob([opmData], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'soundbank.opm';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
         </script>
 </body>
 
