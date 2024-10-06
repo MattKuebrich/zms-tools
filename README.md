@@ -96,7 +96,7 @@ C2: 31  15  10   8  15   0   0   3   0   0   0
 
 ### Other Notes:
 
-* The converter saves an entire OPM bank of 128 instruments every time, even if only a few instruments are converted. The others will just be empty. This works best when importing them into VOPM.
+* zms2opm saves an entire OPM bank of 128 instruments every time, even if only a few instruments are converted. The others will just be empty. This works best when importing them into VOPM.
 
 # Similar projects
 * [opm2mml by exodusmodules](https://nfggames.com/forum2/index.php?topic=5992.0)
