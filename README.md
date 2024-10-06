@@ -60,9 +60,11 @@ And this format is rarely used, but also supported:
 ```
 
 ### Other Notes: 
-* Make sure to paste in only the instrument definitions, not any other bits of MML.
+* Make sure to paste in _only_ the instrument definitions (like those above), not any other bits of MML.
 
-* Rather than just output the instrument definitions, I've formatted the .zms file so it can be played without further modification. It just plays a few notes using the first defined instrument.
+* Rather than just output the instrument definitions, I've formatted the .zms output (from opm2zms) so it can be played without further modification. It just plays a few notes using the first defined instrument.
+
+* There doesn't seem to be a standard place for _instrument name_ in .zms files. I've added support for the most common place I've seen, which is as a comment on the same line as the instrument number but it won't be translated over into the .opm if it's in a different spot.
 
 * Z-MUSIC instrument definitions don't contain a noise enable or noise frequency setting (which is present in VOPM). It is set with the ``@o`` macro and only works when using Channel 8. When converting from .opm to .zms, I've added rudimentary support for noise by adding the noise macro when it's enabled in the .opm instrument, but if you convert multiple instruments (with multiple noise settings), it won't really work. 
 
